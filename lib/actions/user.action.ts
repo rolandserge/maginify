@@ -1,3 +1,5 @@
+"use server"
+
 import { revalidatePath } from "next/cache";
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
@@ -75,5 +77,25 @@ export async function deleteUser(clerkId: string) {
         return deleteUser ? JSON.parse(JSON.stringify(deleteUser)) : null
     } catch (error) {
         handleError(error)
+    }
+}
+
+// USER CREDITS
+export async function updateCredits(userId: string, creditFee: number) {
+
+    try {
+        await connectToDatabase()
+
+        const updateUserCredit = await User.findOneAndUpdate(
+            { _id: userId },
+            { $inc: { creditBalance: creditFee }},
+            { new: true }
+        )
+
+        if(!updateUserCredit) throw new Error("User credits update failed")
+
+        return JSON.parse(JSON.stringify(updateUserCredit))
+    } catch (error) {
+        handleError(error);
     }
 }
